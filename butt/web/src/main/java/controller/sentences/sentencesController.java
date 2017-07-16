@@ -84,14 +84,6 @@ public class sentencesController {
                     Tree tree = new Tree();
                     tree.setQid(inserted.getId());
                     buttService.insert(tree);
-
-                    if (prevId != -1) {
-                        List<Tree> addList = new ArrayList<>();
-                        tree.setQid(prevId);
-                        tree.setAid(inserted.getId());
-                        addList.add(tree);
-                        treeService.insert(addList);
-                    }
                 }
                 treeList = buttService.random();
                 nextSentences = sentencesService.selectWithButts(treeList);
