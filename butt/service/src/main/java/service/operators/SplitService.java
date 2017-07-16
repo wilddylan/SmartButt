@@ -24,15 +24,6 @@ import java.util.List;
 public class SplitService {
     private static final Logger logger = LoggerFactory.getLogger(SplitService.class);
 
-    private final ISentencesService sentencesService;
-    private final IButtService buttService;
-
-    @Autowired
-    public SplitService(ISentencesService sentencesService, IButtService buttService) {
-        this.sentencesService = sentencesService;
-        this.buttService = buttService;
-    }
-
     @Async(value = "executor")
     public void asyncSplitLearn(String content) {
         // Split this content and searching.
@@ -42,20 +33,6 @@ public class SplitService {
         List<CoreLabel> list = AnnotateTool.getAnnotated(content);
         if (list.size() != 0) {
             logger.info(JSON.toJSONString(list));
-            // Save to butt and Sentence
-            Sentences sentences = new Sentences();
-            sentences.setContent(content);
-            try {
-                sentencesService.insert(sentences);
-                Sentences inserted = sentencesService.selectWithContent(content);
-                if (inserted != null) {
-                    Tree tree = new Tree();
-                    tree.setQid(inserted.getId());
-                    buttService.insert(tree);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

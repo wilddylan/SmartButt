@@ -38,9 +38,15 @@ public class sentencesController {
         this.buttService = buttService;
     }
 
-    @RequestMapping(value = "/ask/{question}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    /**
+     * 语料库入口
+     * @param prevId prev sentence id, if not have, send -1
+     * @param question sentence
+     * @return Response
+     */
+    @RequestMapping(value = "/prev/{prevId}/next/{question}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     @ResponseBody
-    public String getAnswer(@PathVariable String question) {
+    public String getAnswer(@PathVariable Integer prevId, @PathVariable String question) {
         /*
          * Begin
          * -> Prev messageId, New sentence.
@@ -55,9 +61,11 @@ public class sentencesController {
          */
         try {
             Sentences sentences = sentencesService.selectWithContent(question);
+            List<Sentences> nextSentences;
+            List<Tree> treeList;
             if (sentences != null) {
-                List<Tree> treeList = treeService.simplyGetNext(sentences.getId());
-                List<Sentences> nextSentences;
+                // Question founded
+                treeList = treeService.simplyGetNext(sentences.getId());
                 if (treeList == null || treeList.size() == 0) {
                     // Get an another random unAnswered question
                     treeList = buttService.random();
@@ -65,15 +73,34 @@ public class sentencesController {
                 } else {
                     nextSentences = sentencesService.selectWithTrees(treeList);
                 }
-                return Response.SucceedResponse(nextSentences).JSONString();
             } else {
                 // Question not found
+                Sentences s = new Sentences();
+                s.setContent(question);
+                sentencesService.insert(s);
+
+                Sentences inserted = sentencesService.selectWithContent(question);
+                if (inserted != null) {
+                    Tree tree = new Tree();
+                    tree.setQid(inserted.getId());
+                    buttService.insert(tree);
+
+                    if (prevId != -1) {
+                        List<Tree> addList = new ArrayList<>();
+                        tree.setQid(prevId);
+                        tree.setAid(inserted.getId());
+                        addList.add(tree);
+                        treeService.insert(addList);
+                    }
+                }
+                treeList = buttService.random();
+                nextSentences = sentencesService.selectWithButts(treeList);
                 splitService.asyncSplitLearn(question);
             }
+            return Response.SucceedResponse(nextSentences).JSONString();
         } catch (Exception e) {
             e.printStackTrace();
+            return Response.FailedResponse().JSONString();
         }
-
-        return Response.FailedResponse().JSONString();
     }
 }
