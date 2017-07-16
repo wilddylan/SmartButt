@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.config.IConfigurationDao">
+    <insert id="addConfiguration" parameterType="model.config.Configuration">
+        INSERT INTO t_config (id) VALUES ( #{configuration.id, jdbcType=VARCHAR} )
+    </insert>
+
+    <select id="getConfiguration" resultType="model.config.Configuration">
+        SELECT * FROM t_config
+    </select>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.sentences.ISentencesDao">
+    <select id="selectAll" resultType="model.sentences.Sentences">
+        SELECT * FROM t_corpus_base
+    </select>
+
+    <select id="selectWithContent" parameterType="java.lang.String" resultType="model.sentences.Sentences">
+        SELECT * FROM t_corpus_base WHERE `content` = #{content} LIMIT 1
+    </select>
+
+    <select id="selectWithTrees" parameterType="java.util.List" resultType="model.sentences.Sentences">
+        SELECT * FROM t_corpus_base WHERE
+        <foreach collection="list" item="item" index="index" separator="OR" >
+            `id` = ( #{item.aid} )
+        </foreach>
+    </select>
+
+    <select id="selectWithButts" parameterType="java.util.List" resultType="model.sentences.Sentences">
+        SELECT * FROM t_corpus_base WHERE
+        <foreach collection="list" item="item" index="index" separator="OR" >
+            `id` = ( #{item.qid} )
+        </foreach>
+    </select>
+
+    <insert id="insert" parameterType="model.sentences.Sentences">
+        INSERT INTO t_corpus_base (`content`) VALUES ( #{sentence.content} )
+    </insert>
+</mapper>

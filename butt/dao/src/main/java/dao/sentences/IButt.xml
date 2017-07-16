@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.sentences.IButtDao">
+    <insert id="insert" parameterType="model.sentences.Tree">
+        INSERT INTO t_corpus_butt (`qid`) VALUES ( #{tree.qid} )
+    </insert>
+
+    <select id="random" resultType="model.sentences.Tree">
+        SELECT * FROM t_corpus_butt t1 JOIN (SELECT RAND()*(SELECT count(*) from t_corpus_butt) AS nid) t2 ON t1.id > t2.nid LIMIT 1;
+    </select>
+</mapper>
